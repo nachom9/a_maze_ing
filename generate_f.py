@@ -4,11 +4,11 @@ class MazeGenerator:
 
     def __init__(self, limits):
         self.limits = limits
-        self.entry: (config["ENTRY"])
-        self.exit: config["EXIT"]
-        self.output_file: config["OUTPUT_FILE"]
+        self.entry = (0,0)
+        self.exit = (0,5)
+        self.output_file = 't.txt'
         self.perfect: False
-        self.center: (0,0)
+        self.center = (0,0)
         self.cells = {}
     
     def add_cell(self, cell, coord):
@@ -64,7 +64,47 @@ class MazeGenerator:
             if self.cells[coord].hex != 'F':
                 self.cells[coord].check = False
 
-    def maze_solution(self):
+    def maze_solution(self, coord):
+        directions = ['west', 'south', 'east', 'north']
+        row = coord[0]
+        col = coord[1]
+        self.cells[coord].check = True
+        if self.exit == coord:
+             return
+
+
+        for direction in directions:
+            if (
+                direction == 'north' and row != 0
+                and self.cells[row, col].walls['north'] == 0 
+                and not self.cells[(row - 1, col)].check
+                ):
+                print(coord)
+                self.maze_solution((row - 1, col))
+                 
+            elif (
+                direction == 'east' and col < self.limits[1] - 1
+                and self.cells[row, col].walls['east'] == 0
+                and not self.cells[(row, col + 1)].check
+                ):
+                print(coord)
+                self.maze_solution((row, col + 1))
+
+            elif (
+                direction == 'south' and col < self.limits[1] - 1
+                and self.cells[row, col].walls['south'] == 0
+                and not self.cells[(row + 1, col)].check
+                ):
+                print(coord)
+                self.maze_solution((row + 1, col))
+            
+            elif (
+                direction == 'west' and col != 0
+                and self.cells[row, col].walls['west'] == 0
+                and not self.cells[(row, col - 1)].check
+                ):
+                print(coord)
+                self.maze_solution((row, col - 1))
         
 
     def draw_fortytwo(self, limits):
@@ -88,6 +128,7 @@ class MazeGenerator:
                    (mid_row + 1, mid_col + 1), (mid_row + 2, mid_col + 1),
                    (mid_row + 2, mid_col + 2), (mid_row + 2, mid_col + 3))
         print(self.center)
+
         if limits[0] >= 5 and limits[1] >= 7:
             for cell in blocked:
                 self.cells[cell].check = True
@@ -104,11 +145,12 @@ class Cell:
                  'north': 1}
         self.check = False
 
+
 def main():
 
     row_count = 0
     col_count = 0
-    limits = (5, 7)
+    limits = (7, 9)
 
     maze = MazeGenerator(limits)
     while row_count < maze.limits[0]:
@@ -127,9 +169,19 @@ def main():
             MazeGenerator.open_walls(maze, (maze.center[0] + 1, maze.center[1] - 2), limits)
 
     MazeGenerator.clean_mazecheck(maze)
+    maze.maze_solution((0,0))
 
     for key in maze.cells.keys():
         print(maze.cells[key].hex, end='')
 
+
 if __name__ == "__main__":
     main()
+    
+BD1555553
+AFAD3FFFA
+AFC5057FA
+AFFFAFFFA
+AD3FAFD52
+C3AFEFFFA
+D44555556
